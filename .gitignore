@@ -1,5 +1,6 @@
 *node*
 *node_modules*
+*.conf
 *.ico
 *.png
 *.key
