@@ -114,8 +114,10 @@ username and in this case we use the default `postgres` user.
 
 ## Next.js App
 
-You will need to configure the app by editing the `.env` file, you may use these
-contents:
+You will need to configure the app by editing the `.env` file located in
+`learn-nextjs/nextjs-dashboard/.env`. If it does not exists you will need to create it.
+
+You may use these settings for configuring the next.js app:
 
 ```config
 POSTGRES_URL="postgres://postgres:pass@localhost:5432/next-js-dashboard"
