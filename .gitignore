@@ -2,6 +2,8 @@
 *node_modules*
 *.ico
 *.png
+*.key
+*.crt
 *.swp
 *.swo
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
