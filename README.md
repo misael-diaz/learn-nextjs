@@ -114,6 +114,26 @@ username and in this case we use the default `postgres` user.
 
 ## Next.js App
 
+You will need to configure the app by editing the `.env` file, you may use these
+contents:
+
+```config
+POSTGRES_URL="postgres://postgres:pass@localhost:5432/next-js-dashboard"
+POSTGRES_URL_NON_POOLING="postgres:pass//postgres:@localhost:5432/next-js-dashboard"
+POSTGRES_PRISMA_URL=
+POSTGRES_USER=postgres
+POSTGRES_HOST=localhost
+POSTGRES_PASSWORD=pass
+POSTGRES_DATABASE=next-js-dashboard
+
+# `openssl rand -base64 32`
+AUTH_SECRET=
+AUTH_URL=http://localhost:3000/api/auth
+```
+
+Note that `pass` in `"postgres://postgres:pass@localhost:5432/next-js-dashboard"` is
+the password and it must match the postgres password used in the Dockerfile.
+
 To run the next.js app do the following:
 
 ```sh
