@@ -112,6 +112,40 @@ where `psql` is the console-based postgres sql client, `-h` defines the hostname
 must be localhost because you are running it in your local machine, `-U` defines the
 username and in this case we use the default `postgres` user.
 
+## Next.js App
+
+To run the next.js app do the following:
+
+```sh
+npm run dev
+```
+
+and that should start the app in development mode
+
+and then you can use your browser to seed the database by supplying this URL in your
+browser search bar:
+
+
+```sh
+http://localhost:3000/seed
+```
+
+if all goes well you should see the string:
+
+```
+Database seeded successfully
+```
+
+in your browser.
+
+If not, checking the error code it can help you pinpoint what the problem might be.
+The author of the post that I am basing this work on said that it is possible that
+the seeding code `learn-nextjs/nextjs-dashboard/app/seed/route.ts` might need
+further revision.
+
+I have extended the code so that you won't need to create the `next-js-dashboard` database
+yourself, but instead is handled by the code itself.
+
 ## References
 
 The most useful post that I have found to setup a local postgres database is this [one](https://medium.com/@dekadekadeka/next-js-tutorial-with-local-database-quick-start-guide-394d48a0aada),
