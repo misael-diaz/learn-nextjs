@@ -1,18 +1,41 @@
 import bcrypt from 'bcrypt';
 import { invoices, customers, revenue, users } from '../lib/placeholder-data';
-const { Pool } = require("pg");
+const { Pool, Client } = require("pg");
 
-const connectionPool = new Pool({
-	connectionString: process.env.POSTGRES_URL,
-	user: process.env.POSTGRES_USER,
-	host: process.env.POSTGRES_HOST,
-	database: process.env.POSTGRES_DATABASE,
-	password: process.env.POSTGRES_PASSWORD,
-	port: 5432,
-});
+async function createDatabase() {
 
-async function seedUsers() {
-  await connectionPool.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+  const client = new Client({
+    user: process.env.POSTGRES_USER,
+    host: process.env.POSTGRES_HOST,
+    database: "postgres",
+    password: process.env.POSTGRES_PASSWORD,
+    port: 5432,
+  });
+
+  try {
+    const db = process.env.POSTGRES_DATABASE;
+    await client.connect();
+    console.log('Connected to PostgreSQL server.');
+
+    const q = (`SELECT 1 FROM pg_database WHERE datname = '${db}'`);
+    const res = await client.query(q);
+    if (res.rows.length === 0) {
+      const q = (`CREATE DATABASE "${db}"`);
+      await client.query(q);
+      console.log(`Database '${db}' created successfully.`);
+    } else {
+      console.log(`Database '${db}' already exists.`);
+    }
+
+  } catch (err) {
+    console.error('Error creating database:', err);
+  } finally {
+    await client.end();
+    console.log('Connection closed.');
+  }
+}
+
+async function seedUsers(connectionPool) {
   await connectionPool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -37,8 +60,7 @@ async function seedUsers() {
   return insertedUsers;
 }
 
-async function seedInvoices() {
-  await connectionPool.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+async function seedInvoices(connectionPool) {
 
   await connectionPool.query(`
     CREATE TABLE IF NOT EXISTS invoices (
@@ -68,8 +90,7 @@ async function seedInvoices() {
   return insertedInvoices;
 }
 
-async function seedCustomers() {
-  await connectionPool.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+async function seedCustomers(connectionPool) {
 
   await connectionPool.query(`
     CREATE TABLE IF NOT EXISTS customers (
@@ -93,7 +114,7 @@ async function seedCustomers() {
   return insertedCustomers;
 }
 
-async function seedRevenue() {
+async function seedRevenue(connectionPool) {
   await connectionPool.query(`
     CREATE TABLE IF NOT EXISTS revenue (
       month VARCHAR(4) NOT NULL UNIQUE,
@@ -116,12 +137,23 @@ async function seedRevenue() {
 
 export async function GET() {
   try {
+    await createDatabase();
+    const connectionPool = new Pool({
+      connectionString: process.env.POSTGRES_URL,
+      user: process.env.POSTGRES_USER,
+      host: process.env.POSTGRES_HOST,
+      database: process.env.POSTGRES_DATABASE,
+      password: process.env.POSTGRES_PASSWORD,
+      port: 5432,
+    });
 
-  const result = await Promise.all([
-      seedUsers(),
-      seedCustomers(),
-      seedInvoices(),
-      seedRevenue(),
+    await connectionPool.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+
+    const result = await Promise.all([
+      seedUsers(connectionPool),
+      seedCustomers(connectionPool),
+      seedInvoices(connectionPool),
+      seedRevenue(connectionPool),
     ]);
 
     return Response.json({ message: 'Database seeded successfully' });
