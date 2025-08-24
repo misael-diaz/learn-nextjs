@@ -38,6 +38,11 @@ export async function fetchRevenue() {
 export async function fetchLatestInvoices() {
   try {
 
+    console.log("artificially slow fetch of invoices data ...");
+    await new Promise((resolve, reject) => {
+	setTimeout(resolve, 2000);
+    });
+
     const data = await connectionPool.query(`
       SELECT
 	invoices.amount,
