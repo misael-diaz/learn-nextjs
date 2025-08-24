@@ -20,6 +20,12 @@ const connectionPool = new Pool({
 
 export async function fetchRevenue() {
   try {
+
+    console.log("artificially slow fetch of revenue data ...");
+    await new Promise((resolve, reject) => {
+	setTimeout(resolve, 2000);
+    });
+
     const data = await connectionPool.query(`SELECT * FROM revenue`);
 
     return data.rows;
@@ -31,11 +37,6 @@ export async function fetchRevenue() {
 
 export async function fetchLatestInvoices() {
   try {
-
-    console.log("artificially slow fetch of invoice data ...");
-    await new Promise((resolve, reject) => {
-	setTimeout(resolve, 3000);
-    });
 
     const data = await connectionPool.query(`
       SELECT
@@ -63,11 +64,6 @@ export async function fetchLatestInvoices() {
 
 export async function fetchCardData() {
   try {
-
-    console.log("artificially slow fetch of card data ...");
-    await new Promise((resolve, reject) => {
-	setTimeout(resolve, 2000);
-    });
 
     // You can probably combine these into a single SQL query
     // However, we are intentionally splitting them to demonstrate
