@@ -1,4 +1,4 @@
-import postgres from 'postgres';
+const { Pool } = require("pg");
 import {
   CustomerField,
   CustomersTableType,
@@ -9,21 +9,20 @@ import {
 } from './definitions';
 import { formatCurrency } from './utils';
 
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+const connectionPool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+  user: process.env.POSTGRES_USER,
+  host: process.env.POSTGRES_HOST,
+  database: process.env.POSTGRES_DATABASE,
+  password: process.env.POSTGRES_PASSWORD,
+  port: 5432,
+});
 
 export async function fetchRevenue() {
   try {
-    // Artificially delay a response for demo purposes.
-    // Don't do this in production :)
+    const data = await connectionPool.query(`SELECT * FROM revenue`);
 
-    // console.log('Fetching revenue data...');
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    const data = await sql<Revenue[]>`SELECT * FROM revenue`;
-
-    // console.log('Data fetch completed after 3 seconds.');
-
-    return data;
+    return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch revenue data.');
@@ -32,20 +31,26 @@ export async function fetchRevenue() {
 
 export async function fetchLatestInvoices() {
   try {
-    const data = await sql<LatestInvoiceRaw[]>`
-      SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
+    const data = await connectionPool.query(`
+      SELECT
+	invoices.amount,
+	customers.name,
+	customers.image_url,
+	customers.email,
+	invoices.id
       FROM invoices
       JOIN customers ON invoices.customer_id = customers.id
       ORDER BY invoices.date DESC
-      LIMIT 5`;
+      LIMIT 5`
+   );
 
-    const latestInvoices = data.map((invoice) => ({
+   const latestInvoices = data.rows.map((invoice) => ({
       ...invoice,
       amount: formatCurrency(invoice.amount),
     }));
     return latestInvoices;
   } catch (error) {
-    console.error('Database Error:', error);
+    console.error('Error:', error);
     throw new Error('Failed to fetch the latest invoices.');
   }
 }
